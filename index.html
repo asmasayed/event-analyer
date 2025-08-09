@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered College Event Analyzer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>AI-Powered College Event Analyzer</h1>
+            <p class="header-subtitle">Transform event feedback into actionable insights with advanced NLP analysis</p>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <!-- Data Input Section -->
+            <section class="section data-input">
+                <h2>Data Input</h2>
+                <div class="input-methods">
+                    <!-- File Upload -->
+                    <div class="input-method">
+                        <h3>Upload CSV File</h3>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <div class="upload-content">
+                                <div class="upload-icon">📁</div>
+                                <p>Drag & drop your CSV file here or <button type="button" class="btn btn--outline upload-trigger">browse files</button></p>
+                                <small>Supported format: CSV with feedback column</small>
+                            </div>
+                            <input type="file" id="csvFileInput" accept=".csv" hidden>
+                        </div>
+                    </div>
+
+                    <!-- Text Input -->
+                    <div class="input-method">
+                        <h3>Direct Text Input</h3>
+                        <textarea id="textInput" class="form-control" rows="6" placeholder="Paste your feedback text here, one feedback per line..."></textarea>
+                    </div>
+
+                    <!-- Sample Data -->
+                    <div class="input-method">
+                        <h3>Try Sample Data</h3>
+                        <div class="sample-buttons">
+                            <button type="button" class="btn btn--secondary" id="loadAcademicSample">Academic Seminar</button>
+                            <button type="button" class="btn btn--secondary" id="loadOrientationSample">Orientation Event</button>
+                            <button type="button" class="btn btn--secondary" id="loadSportsSample">Sports Event</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Preview -->
+                <div class="data-preview" id="dataPreview" style="display: none;">
+                    <h3>Data Preview</h3>
+                    <div class="preview-stats">
+                        <span id="previewCount">0</span> feedback entries loaded
+                    </div>
+                    <div class="preview-table-container">
+                        <table class="preview-table" id="previewTable">
+                            <thead>
+                                <tr>
+                                    <th>Feedback</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Controls -->
+            <section class="section analysis-controls">
+                <h2>Analysis Settings</h2>
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label for="sentimentSensitivity" class="form-label">Sentiment Sensitivity</label>
+                        <input type="range" id="sentimentSensitivity" min="0.05" max="0.3" step="0.05" value="0.1" class="range-input">
+                        <span class="range-value" id="sentimentSensitivityValue">0.1</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="keywordCount" class="form-label">Keywords to Extract</label>
+                        <select id="keywordCount" class="form-control">
+                            <option value="10">10 Keywords</option>
+                            <option value="15" selected>15 Keywords</option>
+                            <option value="20">20 Keywords</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <button type="button" class="btn btn--primary btn--full-width" id="analyzeBtn">
+                            <span class="btn-text">Analyze Feedback</span>
+                            <span class="spinner" id="analyzeSpinner" style="display: none;">⟳</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Dashboard -->
+            <section class="section results-dashboard" id="resultsDashboard" style="display: none;">
+                <h2>Analysis Results</h2>
+                
+                <!-- Summary Cards -->
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>Total Feedback</h3>
+                        <div class="summary-value" id="totalFeedback">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Average Sentiment</h3>
+                        <div class="summary-value" id="averageSentiment">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>NPS Score</h3>
+                        <div class="summary-value nps-score" id="npsScore">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Recommendation</h3>
+                        <div class="summary-value" id="recommendation">Processing...</div>
+                    </div>
+                </div>
+
+                <!-- Visualizations -->
+                <div class="visualizations">
+                    <div class="chart-container">
+                        <h3>Sentiment Distribution</h3>
+                        <div class="chart-wrapper" style="position: relative; height: 300px;">
+                            <canvas id="sentimentChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Top Keywords</h3>
+                        <div class="keywords-cloud" id="keywordsCloud"></div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>NPS Breakdown</h3>
+                        <div class="chart-wrapper" style="position: relative; height: 300px;">
+                            <canvas id="npsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>Sentiment Timeline</h3>
+                        <div class="chart-wrapper" style="position: relative; height: 300px;">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Results Table -->
+                <div class="detailed-results">
+                    <h3>Detailed Analysis</h3>
+                    <div class="table-controls">
+                        <select id="filterSentiment" class="form-control">
+                            <option value="all">All Feedback</option>
+                            <option value="positive">Positive Only</option>
+                            <option value="negative">Negative Only</option>
+                            <option value="neutral">Neutral Only</option>
+                        </select>
+                        <button type="button" class="btn btn--outline" id="exportResults">Export Results</button>
+                    </div>
+                    <div class="results-table-container">
+                        <table class="results-table" id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>Feedback</th>
+                                    <th>Sentiment</th>
+                                    <th>Score</th>
+                                    <th>Category</th>
+                                    <th>Keywords</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Export Options -->
+                <div class="export-section">
+                    <h3>Export & Share</h3>
+                    <div class="export-buttons">
+                        <button type="button" class="btn btn--secondary" id="exportJSON">Export as JSON</button>
+                        <button type="button" class="btn btn--secondary" id="exportCSV">Export as CSV</button>
+                        <button type="button" class="btn btn--secondary" id="generateReport">Generate Summary Report</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Progress Modal -->
+        <div class="modal hidden" id="progressModal">
+            <div class="modal-content">
+                <h3>Processing Feedback...</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p id="progressText">Initializing analysis...</p>
+            </div>
+        </div>
+
+        <!-- Notification -->
+        <div class="notification hidden" id="notification">
+            <div class="notification-content">
+                <span class="notification-message" id="notificationMessage"></span>
+                <button type="button" class="notification-close" id="notificationClose">×</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
