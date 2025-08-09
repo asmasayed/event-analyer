@@ -372,27 +372,29 @@ class EventAnalyzer {
     }
 
     calculateNPS(sentimentResults) {
-        // Convert sentiment to NPS categories
-        const promoters = sentimentResults.filter(r => r.sentimentScore > 0.3).length;
-        const passives = sentimentResults.filter(r => r.sentimentScore >= -0.1 && r.sentimentScore <= 0.3).length;
-        const detractors = sentimentResults.filter(r => r.sentimentScore < -0.1).length;
-        
-        const total = sentimentResults.length;
-        const promoterPercent = (promoters / total) * 100;
-        const detractorPercent = (detractors / total) * 100;
-        const npsScore = Math.round(promoterPercent - detractorPercent);
-        
-        return {
-            promoters,
-            passives,
-            detractors,
-            total,
-            promoterPercent: Math.round(promoterPercent),
-            passivePercent: Math.round((passives / total) * 100),
-            detractorPercent: Math.round(detractorPercent),
-            npsScore
-        };
-    }
+    const promoters = sentimentResults.filter(r => r.sentimentScore > 0.3).length;
+    const passives = sentimentResults.filter(r => r.sentimentScore >= -0.1 && r.sentimentScore <= 0.3).length;
+    const detractors = sentimentResults.filter(r => r.sentimentScore < -0.1).length;
+    
+    const total = sentimentResults.length;
+    const promoterPercent = (promoters / total) * 100;
+    const detractorPercent = (detractors / total) * 100;
+    const npsScoreRaw = promoterPercent - detractorPercent; // Standard NPS, range -100 to +100
+
+    // Scale NPS to range 1-10
+    const npsScore = Math.round(1 + ((npsScoreRaw + 100) * 9) / 200);
+
+    return {
+        promoters,
+        passives,
+        detractors,
+        total,
+        promoterPercent: Math.round(promoterPercent),
+        passivePercent: Math.round((passives / total) * 100),
+        detractorPercent: Math.round(detractorPercent),
+        npsScore
+    };
+}
 
     displayResults() {
         // Update summary cards
